@@ -1,3 +1,5 @@
+import { AuthRepository } from '../repositories/auth.repository.js';
+
 export class AuthServices {
   constructor() {
     this.authRepository = new AuthRepository();

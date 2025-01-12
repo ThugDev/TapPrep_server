@@ -1,3 +1,5 @@
+import { AuthServices } from '../services/auth.service.js';
+
 export class AuthController {
   constructor() {
     this.authServices = new AuthServices();
