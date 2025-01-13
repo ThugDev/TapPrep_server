@@ -1,6 +1,6 @@
 import winston from 'winston';
 import 'winston-daily-rotate-file';
-import formatTime from '../fommatter/timeFormatter.js';
+import formatTime from '../formatter/timeFormatter.js';
 
 /**
  * 로그 메시지 형식을 정의합니다.
@@ -21,12 +21,20 @@ const logFormat = winston.format.printf(({ timestamp, level, message }) => {
  * 또한, 로그 파일을 압축하여 저장합니다.
  * @type {winston.transports.DailyRotateFile}
  */
-const transport = new winston.transports.DailyRotateFile({
-  filename: 'logs/application-%DATE%.log', // 로그 파일명에 날짜를 포함
-  datePattern: 'YYYY-MM-DD-HH', // 로그 파일에 적용할 날짜 패턴
-  maxFiles: '120', // 120개의 파일까지만 보관
-  zippedArchive: true, // 로그 파일 압축
-});
+const transport = {
+  normal: new winston.transports.DailyRotateFile({
+    filename: 'logs/normal/application-%DATE%.log', // 로그 파일명에 날짜를 포함
+    datePattern: 'YYYY-MM-DD-HH', // 로그 파일에 적용할 날짜 패턴
+    maxFiles: '120', // 120개의 파일까지만 보관
+    zippedArchive: true, // 로그 파일 압축
+  }),
+  db: new winston.transports.DailyRotateFile({
+    filename: 'logs/db/application-%DATE%.log', // 로그 파일명에 날짜를 포함
+    datePattern: 'YYYY-MM-DD-HH', // 로그 파일에 적용할 날짜 패턴
+    maxFiles: '120', // 120개의 파일까지만 보관
+    zippedArchive: true, // 로그 파일 압축
+  }),
+};
 
 /**
  * winston 로거를 생성합니다.
@@ -38,16 +46,26 @@ const transport = new winston.transports.DailyRotateFile({
  * - logger.error(message);  // console.error와 동일
  * @type {winston.Logger}
  */
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
   level: 'info', // 로그 레벨 설정
   format: winston.format.combine(
     winston.format.timestamp(), // 타임스탬프 추가
     logFormat, // 로그 형식 적용
   ),
   transports: [
-    transport, // 파일에 로그 저장
+    transport.normal, // 파일에 로그 저장
     new winston.transports.Console(), // 콘솔에 로그 출력
   ],
 });
 
-export default logger;
+export const dbLogger = winston.createLogger({
+  level: 'info', // 로그 레벨 설정
+  format: winston.format.combine(
+    winston.format.timestamp(), // 타임스탬프 추가
+    logFormat, // 로그 형식 적용
+  ),
+  transports: [
+    transport.db, // 파일에 로그 저장
+    new winston.transports.Console(), // 콘솔에 로그 출력
+  ],
+});
