@@ -3,7 +3,6 @@ import { url } from '../constants/url.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import CustomErr from '../utils/error/CustomErr.js';
 import { ERR_CODES } from '../utils/error/ERR_CODES.js';
-import { createAccessToken, createRefreshToken } from '../utils/jwt/createToken.js';
 import { logger } from '../utils/log/logger.js';
 import { TokenManager } from '../utils/manager/tokenManager.js';
 
@@ -66,7 +65,7 @@ export class AuthService {
     if (!response.ok) {
       // 에러 처리
       logger.error(`Error getting git access token : ${response.status}`);
-      throw new CustomErr(500, 'Error getting git access token');
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error getting git access token');
     }
 
     const data = await response.text();
@@ -88,11 +87,35 @@ export class AuthService {
     if (!response.ok) {
       // 에러 처리
       logger.error(`Error getting git Data : ${response.status}`);
-      throw new CustomErr(500, 'Error getting git Data');
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error getting git Data');
     }
 
     const userData = await response.json();
 
     return userData;
+  }
+
+  async refreshToken(username, refreshToken) {
+    // 타입 검증
+    const [type, token] = refreshToken.split(' ');
+    if (type !== 'bearer') {
+      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
+    }
+
+    // 리프레시 토큰 검증
+    const isEqualToken = await this.tokenManager.compareRefreshToken(username, token);
+    if (isEqualToken === null) {
+      throw new CustomErr(ERR_CODES.NOT_FOUND, 'Not Found refresh token');
+    } else if (!isEqualToken) {
+      throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Invalid refresh token');
+    }
+
+    // 액세스 토큰 발급
+    const accessToken = await this.tokenManager.createAccessToken(username);
+    if (!accessToken) {
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
+    }
+
+    return accessToken;
   }
 }
