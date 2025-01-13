@@ -15,6 +15,10 @@ export const SECRET_KEY = process.env.SECRET_KEY;
 export const CLIENT_ID = process.env.CLIENT_ID;
 export const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
+/* ============================ CERT ============================ */
+export const KEY = process.env.KEY;
+export const CERT = process.env.CERT;
+
 /* ============================ D B ============================ */
 export const DB1_NAME = process.env.DB1_NAME;
 export const DB1_USER = process.env.DB1_USER;

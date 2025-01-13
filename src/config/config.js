@@ -1,4 +1,5 @@
 import {
+  CERT,
   CLIENT_ID,
   CLIENT_SECRET,
   DB1_HOST,
@@ -7,6 +8,7 @@ import {
   DB1_PORT,
   DB1_USER,
   HOST,
+  KEY,
   PEPPER,
   PORT,
   SALT,
@@ -22,6 +24,8 @@ export const config = {
     pepper: PEPPER,
     salt: SALT,
     secret_key: SECRET_KEY,
+    key: KEY,
+    cert: CERT,
   },
   git: {
     client_id: CLIENT_ID,
