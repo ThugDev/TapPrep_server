@@ -1,11 +1,16 @@
 import { config } from '../../config/config.js';
 import { checkHashed } from '../auth/checkHashed.js';
 import { hashed } from '../auth/hashed.js';
+import { ERR_CODES } from '../error/ERR_CODES.js';
 import redisClient from '../redis/redisClient.js';
 import jwt from 'jsonwebtoken';
 
 export class TokenManager {
   constructor() {
+    if (TokenManager.instance) {
+      return TokenManager.instance;
+    }
+    TokenManager.instance = this;
     this.redis = redisClient;
   }
 
@@ -21,12 +26,18 @@ export class TokenManager {
     }
   }
 
-  async compareAccessToken(token) {
+  async decodeToken(token) {
     try {
-      const payload = jwt.verify(token, config.auth.secret_key);
+      const secretKey = config.auth.secret_key;
+
+      const payload = jwt.verify(token, secretKey);
       return payload;
     } catch (err) {
-      return false;
+      if (err.name === 'TokenExpiredError') {
+        throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Token has expired');
+      } else {
+        throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Token is invalid');
+      }
     }
   }
 
@@ -47,7 +58,9 @@ export class TokenManager {
   async compareRefreshToken(username, refreshToken) {
     try {
       const hashedToken = await this.redis.get(username);
-      if (!hashedToken) return false;
+      if (!hashedToken) return null;
+      const isCorrectToken = await this.decodeToken(refreshToken);
+      if (!isCorrectToken) throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Token is invalid');
       return await checkHashed(refreshToken, hashedToken);
     } catch (err) {
       return false;
