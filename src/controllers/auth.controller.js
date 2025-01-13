@@ -28,4 +28,24 @@ export class AuthController {
       next(err);
     }
   };
+
+  refreshToken = async (req, res, next) => {
+    try {
+      // Refresh Token 취득
+      const { username, refreshToken } = req.body;
+      if (!username || !refreshToken) {
+        throw new Error('Invalid arguments');
+      }
+
+      const accessToken = await this.authService.refreshToken(username, refreshToken);
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: 'Refresh Access Token Success',
+        accessToken,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
