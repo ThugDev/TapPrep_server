@@ -2,12 +2,15 @@ import { config } from '../config/config.js';
 import { url } from '../constants/url.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import CustomErr from '../utils/error/CustomErr.js';
+import { ERR_CODES } from '../utils/error/ERR_CODES.js';
 import { createAccessToken, createRefreshToken } from '../utils/jwt/createToken.js';
 import { logger } from '../utils/log/logger.js';
+import { TokenManager } from '../utils/manager/tokenManager.js';
 
 export class AuthService {
   constructor() {
     this.authRepository = new AuthRepository();
+    this.tokenManager = new TokenManager();
   }
 
   async oAuthLogin(code) {
@@ -29,8 +32,13 @@ export class AuthService {
     }
 
     // JWT 토큰 생성
-    const accessToken = createAccessToken(userData.login);
-    const refreshToken = createRefreshToken(userData.login);
+    const accessToken = await this.tokenManager.createAccessToken(userData.login);
+    const refreshToken = await this.tokenManager.createRefreshToken(userData.login);
+
+    if (!accessToken || !refreshToken) {
+      console.log(accessToken, refreshToken);
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
+    }
 
     return {
       accessToken,
