@@ -48,6 +48,26 @@ export class AuthService {
     };
   }
 
+  async logout(username, accessToken) {
+    // 액세스 토큰 만료
+    this.tokenManager.expireToken(accessToken);
+
+    // 리프레시 토큰 삭제
+    const result = await this.tokenManager.deleteRefreshToken(username);
+    if (!result) {
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting token');
+    }
+  }
+
+  async deleteUser(username, accessToken) {
+    const result = await this.authRepository.deleteUser(username);
+    if (!result) {
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting user');
+    }
+    this.logout(username, accessToken);
+    return result;
+  }
+
   async getAccessToken(code) {
     // OAuth 액세스토큰 취득 로직
     const response = await fetch(url.git.accessToken, {
