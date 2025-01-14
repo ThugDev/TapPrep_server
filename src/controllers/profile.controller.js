@@ -67,7 +67,7 @@ export class ProfileController {
       const profile = await this.profileService.updateProfile(username, null, url.profile.default);
 
       // 반환받은 프로필 이미지가 기본이미지가 아닐 때 에러 투척
-      if (profile.profile_image !== url.profile.default) {
+      if (profile.data.profile_image !== url.profile.default) {
         throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting profile image');
       }
       return res.status(200).json({
