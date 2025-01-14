@@ -31,7 +31,7 @@ export class AuthService {
     }
 
     // JWT 토큰 생성
-    const accessToken = await this.tokenManager.createAccessToken(userData.login);
+    const accessToken = this.tokenManager.createAccessToken(userData.login);
     const refreshToken = await this.tokenManager.createRefreshToken(userData.login);
 
     if (!accessToken || !refreshToken) {
@@ -111,7 +111,7 @@ export class AuthService {
     }
 
     // 액세스 토큰 발급
-    const accessToken = await this.tokenManager.createAccessToken(username);
+    const accessToken = this.tokenManager.createAccessToken(username);
     if (!accessToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }
