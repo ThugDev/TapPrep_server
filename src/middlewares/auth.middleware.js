@@ -16,8 +16,9 @@ export default async function (req, _, next) {
     if (type !== 'bearer') throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
 
     const payload = tokenManager.decodeToken(token);
+    payload.accessToken = token; // 리프레시 토큰 추가
 
-    req.user = payload;
+    req.user = payload; // req 객체에 사용자 정보 추가
     next(); // 다음 미들웨어로 전달
   } catch (err) {
     next(err);
