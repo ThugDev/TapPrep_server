@@ -14,7 +14,8 @@ export class TokenManager {
     this.redis = redisClient;
   }
 
-  async createAccessToken(username) {
+  // 액세스토큰 생성
+  createAccessToken(username) {
     try {
       const payload = { username };
       const options = { expiresIn: '30m' };
@@ -26,7 +27,8 @@ export class TokenManager {
     }
   }
 
-  async decodeToken(token) {
+  // 액세스토큰 검증
+  decodeToken(token) {
     try {
       const secretKey = config.auth.secret_key;
 

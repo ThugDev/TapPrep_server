@@ -31,7 +31,7 @@ export class AuthService {
     }
 
     // JWT 토큰 생성
-    const accessToken = await this.tokenManager.createAccessToken(userData.login);
+    const accessToken = this.tokenManager.createAccessToken(userData.login);
     const refreshToken = await this.tokenManager.createRefreshToken(userData.login);
 
     if (!accessToken || !refreshToken) {
@@ -46,6 +46,26 @@ export class AuthService {
       nickname,
       profile_image,
     };
+  }
+
+  async logout(username, accessToken) {
+    // 액세스 토큰 만료
+    this.tokenManager.expireToken(accessToken);
+
+    // 리프레시 토큰 삭제
+    const result = await this.tokenManager.deleteRefreshToken(username);
+    if (!result) {
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting token');
+    }
+  }
+
+  async deleteUser(username, accessToken) {
+    const result = await this.authRepository.deleteUser(username);
+    if (!result) {
+      throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting user');
+    }
+    this.logout(username, accessToken);
+    return result;
   }
 
   async getAccessToken(code) {
@@ -95,13 +115,7 @@ export class AuthService {
     return userData;
   }
 
-  async refreshToken(username, refreshToken) {
-    // 타입 검증
-    const [type, token] = refreshToken.split(' ');
-    if (type !== 'bearer') {
-      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
-    }
-
+  async refreshToken(username, token) {
     // 리프레시 토큰 검증
     const isEqualToken = await this.tokenManager.compareRefreshToken(username, token);
     if (isEqualToken === null) {
@@ -111,7 +125,7 @@ export class AuthService {
     }
 
     // 액세스 토큰 발급
-    const accessToken = await this.tokenManager.createAccessToken(username);
+    const accessToken = this.tokenManager.createAccessToken(username);
     if (!accessToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }

@@ -1,4 +1,6 @@
 import { AuthService } from '../services/auth.service.js';
+import CustomErr from '../utils/error/CustomErr.js';
+import { ERR_CODES } from '../utils/error/ERR_CODES.js';
 
 export class AuthController {
   constructor() {
@@ -9,6 +11,7 @@ export class AuthController {
     try {
       // Authorization Code 취득
       const { code } = req.query;
+
       const user = await this.authService.oAuthLogin(code);
 
       return res.status(200).json({
@@ -23,6 +26,36 @@ export class AuthController {
           nickname: user.nickname,
           profile_image: user.profile_image,
         },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  logout = async (req, res, next) => {
+    try {
+      const { username, accessToken } = req.user;
+      await this.authService.logout(username, accessToken);
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: 'Logout Success',
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  deleteUser = async (req, res, next) => {
+    try {
+      const { username, accessToken } = req.user;
+      const result = await this.authService.deleteUser(username, accessToken);
+      if (!result) {
+        throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error deleting user');
+      }
+      return res.status(200).json({
+        statusCode: 200,
+        message: 'Delete User Success',
       });
     } catch (err) {
       next(err);

@@ -39,23 +39,6 @@ export class AuthRepository {
     }
   }
 
-  async updateUserNickname(username, nickname) {
-    try {
-      // 사용자 업데이트 로직
-      if (!username || !nickname) {
-        throw new Error('Invalid arguments');
-      }
-      const [rows] = await pools.USER_DB.query(SQL_QUERIES.auth.UPDATE_USER_NICKNAME, [
-        nickname,
-        username,
-      ]);
-      return rows;
-    } catch (err) {
-      logger.error(`${username} - Error updating nickname : ${err}`);
-      throw new Error('Error updating nickname');
-    }
-  }
-
   async deleteUser(username) {
     // 사용자 삭제 로직
     try {
