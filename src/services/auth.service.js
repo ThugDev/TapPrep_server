@@ -95,13 +95,7 @@ export class AuthService {
     return userData;
   }
 
-  async refreshToken(username, refreshToken) {
-    // 타입 검증
-    const [type, token] = refreshToken.split(' ');
-    if (type !== 'bearer') {
-      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
-    }
-
+  async refreshToken(username, token) {
     // 리프레시 토큰 검증
     const isEqualToken = await this.tokenManager.compareRefreshToken(username, token);
     if (isEqualToken === null) {
