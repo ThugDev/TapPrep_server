@@ -21,13 +21,14 @@ export class AuthService {
 
     // 사용자 정보로 DB 조회 (없으면 생성)
     const isExistUser = await this.authRepository.getUserById(userData.login);
-    let { username, nickname, profile_image } = isExistUser;
-
+    let username, nickname, profile_image;
     if (!isExistUser) {
       await this.authRepository.createUser(userData);
       username = userData.login;
       nickname = userData.name;
       profile_image = userData.avatar_url;
+    } else {
+      ({ username, nickname, profile_image } = isExistUser);
     }
 
     // JWT 토큰 생성

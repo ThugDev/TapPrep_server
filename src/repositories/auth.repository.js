@@ -5,9 +5,13 @@ import { SQL_QUERIES } from './queries.js';
 export class AuthRepository {
   async createUser(userData) {
     try {
-      const { login: username, name: nickname, avatar_url: profile_image, email } = userData;
-      if (!username || !nickname || !profile_image || !email) {
+      let { login: username, name: nickname, avatar_url: profile_image, email } = userData;
+      if (!username || !nickname || !profile_image) {
         throw new Error('Invalid arguments');
+      }
+
+      if (!email) {
+        email = 'none';
       }
 
       // 사용자 생성 로직
