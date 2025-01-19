@@ -12,7 +12,7 @@ const app = express();
 // SSL 인증서 파일 경로 설정
 
 app.use(express.json());
-app.use('/', router);
+app.use('/api', router);
 app.use(errorHandlingMiddleware);
 
 // 인증서 있는지 확인
