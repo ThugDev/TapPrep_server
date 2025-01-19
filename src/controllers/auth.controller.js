@@ -7,10 +7,22 @@ export class AuthController {
     this.authService = new AuthService();
   }
 
-  oAuthLogin = async (req, res, next) => {
+  callback = async (req, res, next) => {
     try {
       // Authorization Code 취득
       const { code } = req.query;
+
+      // 클라이언트로 `code` 전달
+      res.redirect(`https://localhost:8081/auth?code=${code}`);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  oAuthLogin = async (req, res, next) => {
+    try {
+      // Authorization Code 취득
+      const { code } = req.body;
 
       const user = await this.authService.oAuthLogin(code);
 

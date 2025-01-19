@@ -5,7 +5,8 @@ import authMiddleware from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 const authController = new AuthController();
-router.get('/git', authController.oAuthLogin);
+router.get('/git/callback', authController.callback);
+router.post('/git/token', authController.oAuthLogin);
 router.post('/token/refresh', authController.refreshToken);
 router.post('/logout', authMiddleware, authController.logout);
 
