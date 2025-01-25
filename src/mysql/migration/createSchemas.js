@@ -26,6 +26,7 @@ export const createSchemas = async () => {
   try {
     // sol_DB SQL 파일 실행
     await executeSqlFile(pools.USER_DB, path.join(sqlDir, 'tap_user_db.sql'));
+    await executeSqlFile(pools.PROBLEM_DB, path.join(sqlDir, 'tap_problem_db.sql'));
 
     console.log('데이터베이스 테이블이 성공적으로 생성되었습니다.');
   } catch (error) {
