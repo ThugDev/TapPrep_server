@@ -28,6 +28,7 @@ const createPool = (dbConfig) => {
 
 const pools = {
   USER_DB: createPool(database.USER_DB),
+  PROBLEM_DB: createPool(database.USER_DB),
 };
 
 export default pools;
