@@ -34,6 +34,12 @@ const transport = {
     maxFiles: '120', // 120개의 파일까지만 보관
     zippedArchive: true, // 로그 파일 압축
   }),
+  redis: new winston.transports.DailyRotateFile({
+    filename: 'logs/redis/application-%DATE%.log', // 로그 파일명에 날짜를 포함
+    datePattern: 'YYYY-MM-DD-HH', // 로그 파일에 적용할 날짜 패턴
+    maxFiles: '120', // 120개의 파일까지만 보관
+    zippedArchive: true, // 로그 파일 압축
+  }),
 };
 
 /**
@@ -66,6 +72,18 @@ export const dbLogger = winston.createLogger({
   ),
   transports: [
     transport.db, // 파일에 로그 저장
+    new winston.transports.Console(), // 콘솔에 로그 출력
+  ],
+});
+
+export const redisLogger = winston.createLogger({
+  level: 'info', // 로그 레벨 설정
+  format: winston.format.combine(
+    winston.format.timestamp(), // 타임스탬프 추가
+    logFormat, // 로그 형식 적용
+  ),
+  transports: [
+    transport.redis, // 파일에 로그 저장
     new winston.transports.Console(), // 콘솔에 로그 출력
   ],
 });
