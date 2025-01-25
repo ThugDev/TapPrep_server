@@ -43,6 +43,13 @@ export const config = {
       host: DB1_HOST,
       port: DB1_PORT,
     },
+    PROBLEM_DB: {
+      name: DB1_NAME,
+      user: DB1_USER,
+      password: DB1_PASSWORD,
+      host: DB1_HOST,
+      port: DB1_PORT,
+    },
   },
   redis: {
     host: REDIS_HOST,
