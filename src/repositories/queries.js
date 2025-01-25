@@ -10,4 +10,14 @@ export const SQL_QUERIES = {
     UPDATE_PROFILE_NICKNAME: `UPDATE users SET nickname = ? WHERE username = ?`,
     UPDATE_PROFILE_IMAGE: `UPDATE users SET profile_image = ? WHERE username = ?`,
   },
+  sector: {
+    CREATE_SECTOR: `INSERT INTO sectors (sector_name) VALUES (?)`,
+    GET_SECTORS: `SELECT sector_id, sector_name FROM sectors`,
+  },
+  problem: {
+    CREATE_PROBLEM: `INSERT INTO problems (sector_id, difficulty, title, description, hint, explanation, reference) VALUES ?`,
+  },
+  option: {
+    CREATE_OPTION: `INSERT INTO options (problem_id, option_text, isCorrect) VALUES (?,?,?)`,
+  },
 };
