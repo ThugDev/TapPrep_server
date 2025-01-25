@@ -12,8 +12,9 @@ export default async function (req, _, next) {
       throw new CustomErr(ERR_CODES.NOT_FOUND, 'Not Found TOKEN');
 
     const [type, token] = authorization.split(' ');
-
-    if (type !== 'bearer') throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
+    const transferType = type.toLowerCase();
+    if (transferType !== 'bearer')
+      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Token type mismatch');
 
     const payload = tokenManager.decodeToken(token);
     payload.accessToken = token; // 리프레시 토큰 추가
