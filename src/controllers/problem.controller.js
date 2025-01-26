@@ -8,11 +8,10 @@ export class ProblemController {
   createProblem = async (req, res, next) => {
     try {
       const bodyData = req.body;
-      const response = await this.problemService.createProblem(bodyData);
       // 문제 생성 관련 서비스 호출
       await this.problemService.createProblem(bodyData);
 
-      return res.status(200).json({
+      return res.status(201).json({
         statusCode: 201,
         message: '문제 등록 완료',
       });
@@ -21,11 +20,17 @@ export class ProblemController {
     }
   };
 
-  getProblems = async (req, res, next) => {
+  getProblem = async (req, res, next) => {
     try {
       const { problemId } = req.params;
-
-      return res.status(200).json({});
+      // 아이디에 대한 문제 불러오기 서비스 호출
+      const problemData = await this.problemService.getProblem(problemId);
+      // 상세 문제 반환
+      return res.status(200).json({
+        statusCode: 200,
+        message: '문제 불러오기 완료',
+        problemData,
+      });
     } catch (err) {
       next(err);
     }

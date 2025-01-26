@@ -50,4 +50,31 @@ export class ProblemService {
     // 페이지 반환
     return page;
   }
+
+  async getProblem(problemId) {
+    // 해당 아이디에 대한 문제 내용 불러오기
+    let problemData = await this.problemRepository.getProblem(problemId);
+
+    if (problemData.length === 0)
+      throw new CustomErr(ERR_CODES.NOT_FOUND, `Not Found problem_id - ${problemId}`);
+
+    // 옵션 재설정
+    problemData = problemData[0];
+
+    const options = problemData.options;
+    if (!options) throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Server Error');
+
+    // 문자열 스플릿
+    const optionArr = options.split(',');
+    const optionObj = [];
+    for (let data of optionArr) {
+      const [option_id, option_text] = data.split(':');
+      optionObj.push({ [option_id]: option_text });
+    }
+    // 객체 배열로 치환
+    problemData.options = optionObj;
+
+    // 문제 반환
+    return problemData;
+  }
 }

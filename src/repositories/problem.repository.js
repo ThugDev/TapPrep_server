@@ -42,6 +42,7 @@ export class ProblemRepository {
   async getProblemList(sectorId, difficulty, page) {
     // 오프셋 계산
     const offset = (page - 1) * 10;
+
     // 문제 리스트 쿼리 호출
     const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM_LIST, [
       sectorId,
@@ -49,6 +50,12 @@ export class ProblemRepository {
       offset,
     ]);
     // 리스트 반환
+    return rows;
+  }
+
+  async getProblem(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM, [problemId]);
+
     return rows;
   }
 }

@@ -17,7 +17,11 @@ export const SQL_QUERIES = {
   problem: {
     CREATE_PROBLEM: `INSERT INTO problems (sector_id, difficulty, title, description, hint, explanation, reference) VALUES ?`,
     FIND_PROBLEM_LIST: `SELECT problem_id, title FROM problems WHERE sector_id = ? AND difficulty = ? LIMIT 10 OFFSET ?`,
-    FIND_PROBLEM: ``,
+    FIND_PROBLEM: `SELECT p.problem_id, p.title, p.description, p.hint, GROUP_CONCAT(CONCAT(o.option_id, ':', o.option_text) ORDER BY RAND()) AS options
+                   FROM problems p
+                   JOIN options o ON p.problem_id = o.problem_id
+                   WHERE p.problem_id = ?
+                   GROUP BY p.problem_id`,
     GET_PROBLEM_COUNT: `SELECT COUNT(*) AS total_count FROM problems WHERE sector_id = ? AND difficulty = ?`,
   },
   option: {

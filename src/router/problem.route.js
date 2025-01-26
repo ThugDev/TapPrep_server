@@ -18,6 +18,7 @@ router.get(
   paramsValidator.problems.getLists,
   problemController.getProblemList,
 );
+router.get('/:problemId', problemController.getProblem);
 router.patch('/', problemController.updateProblem);
 router.delete('/', problemController.deleteProblem);
 router.post('/answer', problemController.getAnswerProblem);
