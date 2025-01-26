@@ -77,4 +77,31 @@ export class ProblemService {
     // 문제 반환
     return problemData;
   }
+
+  async getProblemAnswer(problemId, optionId) {
+    // 문제에 대한 옵션 가져오기
+    const answers = await this.problemRepository.getAnswer(problemId);
+    // 문제에 대한 옵션 아이디를 제시했는지 체크
+    let isCorrectOptionId = false;
+    // 정답만 가져오기
+    const correctAnswer = answers.map((answer) => {
+      if (answer.option_id === optionId) isCorrectOptionId = true;
+      if (answer.isCorrect) return answer;
+    })[0];
+
+    // 문제에 대한 옵션 중 해당하는 옵션이 없을 경우 에러처리
+    if (!isCorrectOptionId)
+      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect option ID for the problem');
+
+    // 문제 해설 가져오기
+    const solution = await this.problemRepository.getProblemSolution(problemId);
+
+    // 문제 정답 삽입
+    solution.answer = correctAnswer.option_text;
+
+    // 제출 답안 정답인지 여부 삽입
+    solution.isCorrect = correctAnswer.option_id === optionId;
+
+    return solution;
+  }
 }

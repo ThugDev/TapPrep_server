@@ -58,4 +58,16 @@ export class ProblemRepository {
 
     return rows;
   }
+
+  async getProblemSolution(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_SOLUTION, [problemId]);
+
+    return rows[0];
+  }
+
+  async getAnswer(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_ANSWER, [problemId]);
+
+    return rows;
+  }
 }

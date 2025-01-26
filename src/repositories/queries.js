@@ -23,6 +23,8 @@ export const SQL_QUERIES = {
                    WHERE p.problem_id = ?
                    GROUP BY p.problem_id`,
     GET_PROBLEM_COUNT: `SELECT COUNT(*) AS total_count FROM problems WHERE sector_id = ? AND difficulty = ?`,
+    GET_ANSWER: `SELECT option_id, option_text, isCorrect FROM options WHERE problem_id = ?`,
+    GET_SOLUTION: `SELECT problem_id, title, explanation, reference FROM problems WHERE problem_id = ?`,
   },
   option: {
     CREATE_OPTION: `INSERT INTO options (problem_id, option_text, isCorrect) VALUES (?,?,?)`,

@@ -38,5 +38,10 @@ export const paramsValidator = {
       query('page').notEmpty().withMessage('Not found parameter |page|'),
       errHandler,
     ],
+    getAnswer: [
+      body('problemId').notEmpty().withMessage('Not found parameter |problemId|'),
+      body('optionId').notEmpty().withMessage('Not found parameter |optionId|'),
+      errHandler,
+    ],
   },
 };

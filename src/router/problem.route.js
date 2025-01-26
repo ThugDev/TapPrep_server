@@ -21,6 +21,11 @@ router.get(
 router.get('/:problemId', problemController.getProblem);
 router.patch('/', problemController.updateProblem);
 router.delete('/', problemController.deleteProblem);
-router.post('/answer', problemController.getAnswerProblem);
+router.post(
+  '/answer',
+  authMiddleware,
+  paramsValidator.problems.getAnswer,
+  problemController.getAnswerProblem,
+);
 
 export default router;

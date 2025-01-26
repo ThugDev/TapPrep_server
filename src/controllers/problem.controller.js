@@ -74,11 +74,19 @@ export class ProblemController {
 
   getAnswerProblem = async (req, res, next) => {
     try {
-      const {} = req.body;
+      const { problemId, optionId } = req.body;
 
-      return res.status(200).json({});
+      // 정답 체크 서비스 호출
+      const problemResult = await this.problemService.getProblemAnswer(problemId, optionId);
+      // 결과 반환
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: '정답 여부 및 해설 반환 성공',
+        problemResult,
+      });
     } catch (err) {
-      next();
+      next(err);
     }
   };
 }
