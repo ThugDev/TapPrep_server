@@ -9,6 +9,8 @@ export class ProblemController {
     try {
       const bodyData = req.body;
       const response = await this.problemService.createProblem(bodyData);
+      // 문제 생성 관련 서비스 호출
+      await this.problemService.createProblem(bodyData);
 
       return res.status(200).json({
         statusCode: 201,
@@ -21,11 +23,27 @@ export class ProblemController {
 
   getProblems = async (req, res, next) => {
     try {
-      const {} = req.body;
+      const { problemId } = req.params;
 
       return res.status(200).json({});
     } catch (err) {
-      next();
+      next(err);
+    }
+  };
+
+  getProblemList = async (req, res, next) => {
+    try {
+      const { sector, difficulty, page } = req.query;
+      // 문제 리스트 관련 서비스 호출
+      const response = await this.problemService.getProblemList(sector, difficulty, page);
+      // 문제 리스트 반환
+      return res.status(200).json({
+        statusCode: 200,
+        message: '문제 불러오기 완료',
+        ...response,
+      });
+    } catch (err) {
+      next(err);
     }
   };
 

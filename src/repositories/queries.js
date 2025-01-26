@@ -16,6 +16,9 @@ export const SQL_QUERIES = {
   },
   problem: {
     CREATE_PROBLEM: `INSERT INTO problems (sector_id, difficulty, title, description, hint, explanation, reference) VALUES ?`,
+    FIND_PROBLEM_LIST: `SELECT problem_id, title FROM problems WHERE sector_id = ? AND difficulty = ? LIMIT 10 OFFSET ?`,
+    FIND_PROBLEM: ``,
+    GET_PROBLEM_COUNT: `SELECT COUNT(*) AS total_count FROM problems WHERE sector_id = ? AND difficulty = ?`,
   },
   option: {
     CREATE_OPTION: `INSERT INTO options (problem_id, option_text, isCorrect) VALUES (?,?,?)`,
