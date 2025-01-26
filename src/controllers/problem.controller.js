@@ -8,9 +8,10 @@ export class ProblemController {
   createProblem = async (req, res, next) => {
     try {
       const bodyData = req.body;
-      const response = await this.problemService.createProblem(bodyData);
+      // 문제 생성 관련 서비스 호출
+      await this.problemService.createProblem(bodyData);
 
-      return res.status(200).json({
+      return res.status(201).json({
         statusCode: 201,
         message: '문제 등록 완료',
       });
@@ -19,13 +20,35 @@ export class ProblemController {
     }
   };
 
-  getProblems = async (req, res, next) => {
+  getProblem = async (req, res, next) => {
     try {
-      const {} = req.body;
-
-      return res.status(200).json({});
+      const { problemId } = req.params;
+      // 아이디에 대한 문제 불러오기 서비스 호출
+      const problemData = await this.problemService.getProblem(problemId);
+      // 상세 문제 반환
+      return res.status(200).json({
+        statusCode: 200,
+        message: '문제 불러오기 완료',
+        problemData,
+      });
     } catch (err) {
-      next();
+      next(err);
+    }
+  };
+
+  getProblemList = async (req, res, next) => {
+    try {
+      const { sector, difficulty, page } = req.query;
+      // 문제 리스트 관련 서비스 호출
+      const response = await this.problemService.getProblemList(sector, difficulty, page);
+      // 문제 리스트 반환
+      return res.status(200).json({
+        statusCode: 200,
+        message: '문제 불러오기 완료',
+        ...response,
+      });
+    } catch (err) {
+      next(err);
     }
   };
 
@@ -51,11 +74,19 @@ export class ProblemController {
 
   getAnswerProblem = async (req, res, next) => {
     try {
-      const {} = req.body;
+      const { problemId, optionId } = req.body;
 
-      return res.status(200).json({});
+      // 정답 체크 서비스 호출
+      const problemResult = await this.problemService.getProblemAnswer(problemId, optionId);
+      // 결과 반환
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: '정답 여부 및 해설 반환 성공',
+        problemResult,
+      });
     } catch (err) {
-      next();
+      next(err);
     }
   };
 }

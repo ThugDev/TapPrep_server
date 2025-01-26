@@ -28,4 +28,46 @@ export class ProblemRepository {
       if (isCorrect) isCorrect = false;
     }
   }
+
+  async getProblemCount(sectorId, difficulty) {
+    // 조건에 맞는 쿼리 호출
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_PROBLEM_COUNT, [
+      sectorId,
+      difficulty,
+    ]);
+    // 토탈카운트 반환, 조회 안될 시 0 반환
+    return rows[0].total_count | 0;
+  }
+
+  async getProblemList(sectorId, difficulty, page) {
+    // 오프셋 계산
+    const offset = (page - 1) * 10;
+
+    // 문제 리스트 쿼리 호출
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM_LIST, [
+      sectorId,
+      difficulty,
+      offset,
+    ]);
+    // 리스트 반환
+    return rows;
+  }
+
+  async getProblem(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM, [problemId]);
+
+    return rows;
+  }
+
+  async getProblemSolution(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_SOLUTION, [problemId]);
+
+    return rows[0];
+  }
+
+  async getAnswer(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_ANSWER, [problemId]);
+
+    return rows;
+  }
 }
