@@ -28,11 +28,36 @@ export class ProblemService {
     const typeNum = this.typeNumber[type];
     if (!typeNum) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect Type');
 
+    // 타입에 따른 답안 체크
+    switch (typeNum) {
+      case 1:
+        if (!answer.length > 3)
+          throw new CustomErr(
+            ERR_CODES.BAD_REQUEST,
+            'A normal question must have at least three answer options registered.',
+          );
+        break;
+      case 2:
+        if (!(answer === true || answer === false))
+          throw new CustomErr(
+            ERR_CODES.BAD_REQUEST,
+            'A true/false question must have bool(true/false) options registered.',
+          );
+        break;
+      case 3:
+        if (answer.length !== 1)
+          throw new CustomErr(
+            ERR_CODES.BAD_REQUEST,
+            'A word question must have one answer options registered.',
+          );
+        break;
+    }
+
     // 섹터에 맞는 문제 추가
     const problemId = await this.problemRepository.createProblem(sectorId, typeNum, problemData);
 
     // 문제에 대한 답안을 등록
-    await this.problemRepository.createAnswer(problemId, answer);
+    await this.problemRepository.createAnswer(problemId, typeNum, answer);
 
     return { sectorId, problemId };
   }

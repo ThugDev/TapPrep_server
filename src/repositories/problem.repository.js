@@ -17,17 +17,34 @@ export class ProblemRepository {
     return rows.insertId;
   }
 
-  async createAnswer(problemId, answers) {
-    // answer 의 첫번째 인자는 정답
-    let isCorrect = true;
-
-    for (const answer of answers) {
-      await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
-        problemId,
-        answer,
-        isCorrect,
-      ]);
-      if (isCorrect) isCorrect = false;
+  async createAnswer(problemId, typeNum, answers) {
+    switch (typeNum) {
+      case 1:
+        // normal answer 의 첫번째 인자는 정답
+        let isCorrect = true;
+        for (const answer of answers) {
+          await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
+            problemId,
+            answer,
+            isCorrect,
+          ]);
+          if (isCorrect) isCorrect = false;
+        }
+        break;
+      case 2:
+        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
+          problemId,
+          Number(answers),
+          true,
+        ]);
+        break;
+      case 3:
+        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
+          problemId,
+          answers[0],
+          true,
+        ]);
+        break;
     }
   }
 
