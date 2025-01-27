@@ -39,11 +39,7 @@ export class ProblemRepository {
         ]);
         break;
       case 3:
-        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
-          problemId,
-          answers[0],
-          true,
-        ]);
+        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [problemId, answers, true]);
         break;
     }
   }

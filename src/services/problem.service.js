@@ -45,7 +45,7 @@ export class ProblemService {
           );
         break;
       case 3:
-        if (answer.length !== 1)
+        if (typeof answer !== 'string')
           throw new CustomErr(
             ERR_CODES.BAD_REQUEST,
             'A word question must have one answer options registered.',
