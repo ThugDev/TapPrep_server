@@ -7,10 +7,15 @@ export class ProblemService {
   constructor() {
     this.problemRepository = new ProblemRepository();
     this.sectorRepository = new SectorRepository();
+    this.typeNumber = {
+      normal: 1,
+      tf: 2,
+      word: 3,
+    };
   }
 
   async createProblem(bodyData) {
-    const { sector, answer, ...problemData } = bodyData;
+    const { sector, type, answer, ...problemData } = bodyData;
     let sectorId = null;
 
     // 섹터가 있는지 확인
@@ -19,8 +24,12 @@ export class ProblemService {
     // 없다면, 섹터 생성
     if (!sectorId) sectorId = await this.sectorRepository.createSector(sector);
 
+    // 타입 변환
+    const typeNum = this.typeNumber[type];
+    if (!typeNum) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect Type');
+
     // 섹터에 맞는 문제 추가
-    const problemId = await this.problemRepository.createProblem(sectorId, problemData);
+    const problemId = await this.problemRepository.createProblem(sectorId, typeNum, problemData);
 
     // 문제에 대한 답안을 등록
     await this.problemRepository.createAnswer(problemId, answer);
