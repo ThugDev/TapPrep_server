@@ -35,6 +35,7 @@ export const paramsValidator = {
     ],
     getLists: [
       query('sector').notEmpty().withMessage('Not found parameter |sector|'),
+      query('type').notEmpty().withMessage('Not found parameter |type|'),
       query('difficulty').notEmpty().withMessage('Not found parameter |difficulty|'),
       query('page').notEmpty().withMessage('Not found parameter |page|'),
       query('limit').notEmpty().withMessage('Not found parameter |limit|'),

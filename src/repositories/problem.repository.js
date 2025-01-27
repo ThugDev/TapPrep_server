@@ -31,23 +31,25 @@ export class ProblemRepository {
     }
   }
 
-  async getProblemCount(sectorId, difficulty) {
+  async getProblemCount(sectorId, typeNum, difficulty) {
     // 조건에 맞는 쿼리 호출
     const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_PROBLEM_COUNT, [
       sectorId,
+      typeNum,
       difficulty,
     ]);
     // 토탈카운트 반환, 조회 안될 시 0 반환
     return rows[0].total_count | 0;
   }
 
-  async getProblemList(sectorId, difficulty, page, limit) {
+  async getProblemList(sectorId, typeNum, difficulty, page, limit) {
     // 오프셋 계산
     const offset = (page - 1) * limit;
 
     // 문제 리스트 쿼리 호출
     const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM_LIST, [
       sectorId,
+      typeNum,
       difficulty,
       Number(limit),
       offset,

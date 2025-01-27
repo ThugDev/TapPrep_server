@@ -37,17 +37,23 @@ export class ProblemService {
     return { sectorId, problemId };
   }
 
-  async getProblemList(sector, difficulty, page, limit) {
+  async getProblemList(sector, type, difficulty, page, limit) {
     // 섹터가 있는지 조회
     const sectorId = await this.sectorRepository.hasSector(sector);
     if (!sectorId) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect sector');
+
+    // 타입 조회
+    const typeNum = this.typeNumber[type];
+    if (!typeNum) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect Type');
+
     // 최대 페이지 계산
-    const maxPage = await this.getProblemListPage(sectorId, difficulty, limit);
+    const maxPage = await this.getProblemListPage(sectorId, typeNum, difficulty, limit);
     if (page > maxPage)
       throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Exceeded maximum page views available');
     // 해당 페이지에 맞는 리스트 가져오기
     const problemList = await this.problemRepository.getProblemList(
       sectorId,
+      typeNum,
       difficulty,
       page,
       limit,
@@ -56,9 +62,13 @@ export class ProblemService {
     return { maxPage, problemList };
   }
 
-  async getProblemListPage(sectorId, difficulty, limit) {
+  async getProblemListPage(sectorId, typeNum, difficulty, limit) {
     // 해당 조건에 맞는 문제 수 가져오기
-    const problemCount = await this.problemRepository.getProblemCount(sectorId, difficulty);
+    const problemCount = await this.problemRepository.getProblemCount(
+      sectorId,
+      typeNum,
+      difficulty,
+    );
     // 한 페이지당 리미트 계산해서 페이지량 추출
     const page = Math.floor((problemCount - 1) / limit) + 1;
     // 페이지 반환
