@@ -23,6 +23,7 @@ export const paramsValidator = {
   problems: {
     createProblem: [
       body('sector').notEmpty().withMessage('Not found parameter |sector|'),
+      body('type').notEmpty().withMessage('Not found parameter |type|'),
       body('difficulty').notEmpty().withMessage('Not found parameter |difficulty|'),
       body('title').notEmpty().withMessage('Not found parameter |title|'),
       body('description').notEmpty().withMessage('Not found parameter |description|'),
@@ -34,6 +35,7 @@ export const paramsValidator = {
     ],
     getLists: [
       query('sector').notEmpty().withMessage('Not found parameter |sector|'),
+      query('type').notEmpty().withMessage('Not found parameter |type|'),
       query('difficulty').notEmpty().withMessage('Not found parameter |difficulty|'),
       query('page').notEmpty().withMessage('Not found parameter |page|'),
       query('limit').notEmpty().withMessage('Not found parameter |limit|'),
@@ -41,7 +43,7 @@ export const paramsValidator = {
     ],
     getAnswer: [
       body('problemId').notEmpty().withMessage('Not found parameter |problemId|'),
-      body('optionId').notEmpty().withMessage('Not found parameter |optionId|'),
+      body('option').notEmpty().withMessage('Not found parameter |optionId|'),
       errHandler,
     ],
   },

@@ -38,9 +38,15 @@ export class ProblemController {
 
   getProblemList = async (req, res, next) => {
     try {
-      const { sector, difficulty, page, limit } = req.query;
+      const { sector, type, difficulty, page, limit } = req.query;
       // 문제 리스트 관련 서비스 호출
-      const response = await this.problemService.getProblemList(sector, difficulty, page, limit);
+      const response = await this.problemService.getProblemList(
+        sector,
+        type,
+        difficulty,
+        page,
+        limit,
+      );
       // 문제 리스트 반환
       return res.status(200).json({
         statusCode: 200,
@@ -74,10 +80,10 @@ export class ProblemController {
 
   getAnswerProblem = async (req, res, next) => {
     try {
-      const { problemId, optionId } = req.body;
+      const { problemId, option } = req.body;
 
       // 정답 체크 서비스 호출
-      const problemResult = await this.problemService.getProblemAnswer(problemId, optionId);
+      const problemResult = await this.problemService.getProblemAnswer(problemId, option);
       // 결과 반환
 
       return res.status(200).json({

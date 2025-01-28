@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS sectors (
 CREATE TABLE IF NOT EXISTS problems (
     problem_id      INT AUTO_INCREMENT PRIMARY KEY,
     sector_id       INT NOT NULL,
+    type            INT NOT NULL,
     difficulty      INT NOT NULL,
     title           VARCHAR(100) NOT NULL,
     description     VARCHAR(150) NOT NULL,
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS problems (
 CREATE TABLE IF NOT EXISTS options (
     option_id        INT AUTO_INCREMENT PRIMARY KEY,
     problem_id       INT NOT NULL,
+    type             INT NOT NULL,
     option_text      VARCHAR(60) NOT NULL,
     isCorrect        BOOLEAN NOT NULL,
     create_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
