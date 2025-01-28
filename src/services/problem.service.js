@@ -110,18 +110,23 @@ export class ProblemService {
     // 옵션 재설정
     problemData = problemData[0];
 
-    const options = problemData.options;
-    if (!options) throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Server Error');
+    // 타입에 따른 옵션 부여
+    if (problemData.type === 1) {
+      const options = problemData.options;
+      if (!options) throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Server Error');
 
-    // 문자열 스플릿
-    const optionArr = options.split(',');
-    const optionObj = [];
-    for (let data of optionArr) {
-      const [option_id, option_text] = data.split(':');
-      optionObj.push({ [option_id]: option_text });
+      // 문자열 스플릿
+      const optionArr = options.split(',');
+      const optionObj = [];
+      for (let data of optionArr) {
+        const [option_id, option_text] = data.split(':');
+        optionObj.push({ [option_id]: option_text });
+      }
+      // 객체 배열로 치환
+      problemData.options = optionObj;
+    } else {
+      delete problemData.options;
     }
-    // 객체 배열로 치환
-    problemData.options = optionObj;
 
     // 문제 반환
     return problemData;
