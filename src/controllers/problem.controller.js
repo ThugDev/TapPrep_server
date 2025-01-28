@@ -38,15 +38,9 @@ export class ProblemController {
 
   getProblemList = async (req, res, next) => {
     try {
-      const { sector, type, difficulty, page, limit } = req.query;
+      const { sector, difficulty, page, limit } = req.query;
       // 문제 리스트 관련 서비스 호출
-      const response = await this.problemService.getProblemList(
-        sector,
-        type,
-        difficulty,
-        page,
-        limit,
-      );
+      const response = await this.problemService.getProblemList(sector, +difficulty, +page, +limit);
       // 문제 리스트 반환
       return res.status(200).json({
         statusCode: 200,
