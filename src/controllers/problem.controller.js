@@ -80,10 +80,10 @@ export class ProblemController {
 
   getAnswerProblem = async (req, res, next) => {
     try {
-      const { problemId, optionId } = req.body;
+      const { problemId, option } = req.body;
 
       // 정답 체크 서비스 호출
-      const problemResult = await this.problemService.getProblemAnswer(problemId, optionId);
+      const problemResult = await this.problemService.getProblemAnswer(problemId, option);
       // 결과 반환
 
       return res.status(200).json({

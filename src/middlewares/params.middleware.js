@@ -43,7 +43,7 @@ export const paramsValidator = {
     ],
     getAnswer: [
       body('problemId').notEmpty().withMessage('Not found parameter |problemId|'),
-      body('optionId').notEmpty().withMessage('Not found parameter |optionId|'),
+      body('option').notEmpty().withMessage('Not found parameter |optionId|'),
       errHandler,
     ],
   },

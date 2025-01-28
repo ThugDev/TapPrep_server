@@ -25,6 +25,7 @@ export class ProblemRepository {
         for (const answer of answers) {
           await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
             problemId,
+            typeNum,
             answer,
             isCorrect,
           ]);
@@ -34,12 +35,18 @@ export class ProblemRepository {
       case 2:
         await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
           problemId,
+          typeNum,
           Number(answers),
           true,
         ]);
         break;
       case 3:
-        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [problemId, answers, true]);
+        await pools.PROBLEM_DB.query(SQL_QUERIES.option.CREATE_OPTION, [
+          problemId,
+          typeNum,
+          answers,
+          true,
+        ]);
         break;
     }
   }

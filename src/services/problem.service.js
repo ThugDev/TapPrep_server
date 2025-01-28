@@ -127,29 +127,71 @@ export class ProblemService {
     return problemData;
   }
 
-  async getProblemAnswer(problemId, optionId) {
+  async getProblemAnswer(problemId, option) {
     // 문제에 대한 옵션 가져오기
     const answers = await this.problemRepository.getAnswer(problemId);
+
+    if (answers.length === 0)
+      throw new CustomErr(ERR_CODES.NOT_FOUND, `Not Found Answers about ${problemId} `);
+
+    // 문제 타입 가져오기
+    const typeNum = answers[0].type;
+
     // 문제에 대한 옵션 아이디를 제시했는지 체크
-    let isCorrectOptionId = false;
-    // 정답만 가져오기
-    const correctAnswer = answers.map((answer) => {
-      if (answer.option_id === optionId) isCorrectOptionId = true;
-      if (answer.isCorrect) return answer;
-    })[0];
+    let isCorrectOptionValue = false;
+    let isCorrect = null;
+    let correctAnswer = null;
+    // 타입 별 스위칭
+    switch (typeNum) {
+      case 1:
+        // 정답만 가져오기
+        const result = answers.map((answer) => {
+          if (answer.option_id === option) isCorrectOptionValue = true;
+          if (answer.isCorrect) return answer;
+        })[0];
+
+        // 정답 기입
+        correctAnswer = result.option_id;
+
+        // 정답이 맞는지 여부 확인
+        isCorrect = correctAnswer === option;
+        break;
+      case 2:
+        // OX, 단답형 문제는 answers 요소가 한 개만 있음
+        if (typeof option === 'boolean') {
+          isCorrectOptionValue = true;
+        }
+
+        // 정답 기입
+        correctAnswer = answers[0].option_text === '1';
+
+        // 정답이 맞는지 여부 확인
+        isCorrect = correctAnswer === option;
+        break;
+      case 3:
+        // OX, 단답형 문제는 answers 요소가 한 개만 있음
+        if (typeof option === 'string') isCorrectOptionValue = true;
+
+        // 정답 기입
+        correctAnswer = answers[0].option_text;
+
+        // 정답이 맞는지 여부 확인
+        isCorrect = correctAnswer === option;
+        break;
+    }
 
     // 문제에 대한 옵션 중 해당하는 옵션이 없을 경우 에러처리
-    if (!isCorrectOptionId)
-      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect option ID for the problem');
+    if (!isCorrectOptionValue)
+      throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect option value for the problem');
 
     // 문제 해설 가져오기
     const solution = await this.problemRepository.getProblemSolution(problemId);
 
     // 문제 정답 삽입
-    solution.answer = correctAnswer.option_text;
+    solution.answer = correctAnswer;
 
     // 제출 답안 정답인지 여부 삽입
-    solution.isCorrect = correctAnswer.option_id === optionId;
+    solution.isCorrect = isCorrect;
 
     return solution;
   }
