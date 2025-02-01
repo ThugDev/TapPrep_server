@@ -22,7 +22,7 @@ export class AuthRepository {
         email,
       ]);
 
-      return rows;
+      return rows.insertId;
     } catch (err) {
       logger.error(`${userData.login} - Error creating user : ${err}`);
       throw new Error('Error creating user');

@@ -21,19 +21,19 @@ export class AuthService {
 
     // 사용자 정보로 DB 조회 (없으면 생성)
     const isExistUser = await this.authRepository.getUserById(userData.login);
-    let username, nickname, profile_image;
+    let user_id, username, nickname, profile_image;
     if (!isExistUser) {
-      await this.authRepository.createUser(userData);
+      user_id = await this.authRepository.createUser(userData);
       username = userData.login;
       nickname = userData.name;
       profile_image = userData.avatar_url;
     } else {
-      ({ username, nickname, profile_image } = isExistUser);
+      ({ user_id, username, nickname, profile_image } = isExistUser);
     }
 
     // JWT 토큰 생성
-    const accessToken = this.tokenManager.createAccessToken(userData.login);
-    const refreshToken = await this.tokenManager.createRefreshToken(userData.login);
+    const accessToken = this.tokenManager.createAccessToken(user_id, username);
+    const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
 
     if (!accessToken || !refreshToken) {
       console.log(accessToken, refreshToken);
@@ -125,8 +125,11 @@ export class AuthService {
       throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Invalid refresh token');
     }
 
+    // 토큰 페이로드 획득
+    const payload = this.tokenManager.decodeToken(token);
+
     // 액세스 토큰 발급
-    const accessToken = this.tokenManager.createAccessToken(username);
+    const accessToken = this.tokenManager.createAccessToken(payload.user_id, username);
     if (!accessToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }
