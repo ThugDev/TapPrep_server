@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS progresses (
     progress_id      INT AUTO_INCREMENT PRIMARY KEY,
     user_id          INT NOT NULL,
-    problem_id       INT NOT NULL UNIQUE,
+    problem_id       INT NOT NULL,
     type             INT NOT NULL,
     isCorrect        BOOLEAN NOT NULL,
     optionData           VARCHAR(60) NOT NULL,

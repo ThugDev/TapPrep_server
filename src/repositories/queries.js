@@ -21,7 +21,7 @@ export const SQL_QUERIES = {
                         LEFT JOIN progresses s ON p.problem_id = s.problem_id
                         WHERE sector_id = ? AND difficulty = ? LIMIT ? OFFSET ?`,
 
-    FIND_PROBLEM: `SELECT p.problem_id, p.type, p.title, p.description, p.hint, GROUP_CONCAT(CONCAT(o.option_id, ':', o.option_text) ORDER BY RAND()) AS options
+    FIND_PROBLEM: `SELECT p.problem_id, p.type, p.title, p.description, p.hint, GROUP_CONCAT(CONCAT(o.option_id, ':', o.option_text) ORDER BY o.option_id) AS options
                    FROM problems p
                    JOIN options o ON p.problem_id = o.problem_id
                    WHERE p.problem_id = ?

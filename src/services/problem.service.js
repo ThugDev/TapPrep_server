@@ -113,19 +113,6 @@ export class ProblemService {
   }
 
   async getProblem(userId, problemId) {
-    // 이미 푼 문제이면 전에 푼 결과 반환
-    const progressData = await this.progressRepository.getProblemProgress(userId, problemId);
-    console.log(progressData);
-    let isSolved = false;
-    if (progressData) {
-      isSolved = true;
-      // 문제 해설 가져오기
-      const problemData = await this.problemRepository.getProblemSolution(problemId);
-      problemData.answer = progressData.optionData;
-      problemData.isCorrect = progressData.isCorrect;
-      return { isSolved, problemData };
-    }
-
     // 해당 아이디에 대한 문제 내용 불러오기
     let problemData = await this.problemRepository.getProblem(problemId);
 
@@ -151,6 +138,35 @@ export class ProblemService {
       problemData.options = optionObj;
     } else {
       delete problemData.options;
+    }
+    // 이미 푼 문제이면 전에 푼 결과 반환
+    const progressData = await this.progressRepository.getProblemProgress(userId, problemId);
+
+    let isSolved = false;
+    if (progressData) {
+      isSolved = true;
+      // 문제 해설 가져오기
+      const solutionData = await this.problemRepository.getProblemSolution(problemId);
+
+      // TODO: 답에 따른 형변환 함수 만들기
+      switch (problemData.type) {
+        case 1:
+          progressData.optionData = Number(progressData.optionData);
+          break;
+        case 2:
+          progressData.optionData = progressData.optionData === 'true';
+      }
+
+      console.log(`ssibal:${progressData.isCorrect}`);
+      // 문제 해설과 진행 데이터를 문제 데이터에 병합
+      Object.assign(problemData, {
+        explanation: solutionData.explanation,
+        reference: solutionData.reference,
+        answer: progressData.optionData,
+        isCorrect: progressData.isCorrect === 1,
+      });
+
+      return { isSolved, problemData };
     }
 
     // 문제 반환
@@ -212,6 +228,10 @@ export class ProblemService {
 
         // 정답이 맞는지 여부 확인
         isCorrect = correctAnswer === option;
+        break;
+      case 4:
+        if (typeof option === 'string') isCorrectOptionValue = true;
+
         break;
     }
 
