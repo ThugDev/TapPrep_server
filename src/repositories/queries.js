@@ -16,10 +16,11 @@ export const SQL_QUERIES = {
   },
   problem: {
     CREATE_PROBLEM: `INSERT INTO problems (sector_id, type, difficulty, title, description, hint, explanation, reference) VALUES ?`,
-    FIND_PROBLEM_LIST: `SELECT s.progress_id, p.problem_id, p.title, p.type 
-                        FROM problems p 
-                        LEFT JOIN progresses s ON p.problem_id = s.problem_id
-                        WHERE sector_id = ? AND difficulty = ? LIMIT ? OFFSET ?`,
+    FIND_PROBLEM_LIST: `SELECT s.progress_id, p.problem_id, p.title, p.type
+                        FROM problems p
+                        LEFT JOIN progresses s ON p.problem_id = s.problem_id AND s.user_id = ? 
+                        WHERE p.sector_id = ? AND p.difficulty = ?
+                        LIMIT ? OFFSET ?`,
 
     FIND_PROBLEM: `SELECT p.problem_id, p.type, p.title, p.description, p.hint, GROUP_CONCAT(CONCAT(o.option_id, ':', o.option_text) ORDER BY o.option_id) AS options
                    FROM problems p
