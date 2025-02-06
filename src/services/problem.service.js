@@ -1,4 +1,5 @@
 import { ProblemRepository } from '../repositories/problem.repository.js';
+import { ProgressRepository } from '../repositories/progress.repository.js';
 import { SectorRepository } from '../repositories/sector.repository.js';
 import CustomErr from '../utils/error/CustomErr.js';
 import { ERR_CODES } from '../utils/error/ERR_CODES.js';
@@ -7,6 +8,7 @@ export class ProblemService {
   constructor() {
     this.problemRepository = new ProblemRepository();
     this.sectorRepository = new SectorRepository();
+    this.progressRepository = new ProgressRepository();
     this.typeNumber = {
       normal: 1,
       tf: 2,
@@ -65,7 +67,7 @@ export class ProblemService {
     return { sectorId, problemId };
   }
 
-  async getProblemList(sector, difficulty, page, limit) {
+  async getProblemList(userId, sector, difficulty, page, limit) {
     // 섹터가 있는지 조회
     const sectorId = await this.sectorRepository.hasSector(sector);
 
@@ -80,6 +82,7 @@ export class ProblemService {
     const nextPage = maxPage >= page + 1 ? page + 1 : false;
     // 해당 페이지에 맞는 리스트 가져오기
     let problemList = await this.problemRepository.getProblemList(
+      userId,
       sectorId,
       difficulty,
       page,
@@ -88,6 +91,10 @@ export class ProblemService {
 
     // 타입 변환
     problemList = problemList.map((problem) => {
+      // 푼 문제인지 판단 후 적용 및 삭제
+      problem.isSolved = problem.progress_id ? true : false;
+      delete problem.progress_id;
+      // 타입 이름화
       problem.type = this.reverseTypeNumber[problem.type];
       return problem;
     });
@@ -105,7 +112,7 @@ export class ProblemService {
     return page;
   }
 
-  async getProblem(problemId) {
+  async getProblem(userId, problemId) {
     // 해당 아이디에 대한 문제 내용 불러오기
     let problemData = await this.problemRepository.getProblem(problemId);
 
@@ -132,12 +139,46 @@ export class ProblemService {
     } else {
       delete problemData.options;
     }
+    // 이미 푼 문제이면 전에 푼 결과 반환
+    const progressData = await this.progressRepository.getProblemProgress(userId, problemId);
+
+    let isSolved = false;
+    if (progressData) {
+      isSolved = true;
+      // 문제 해설 가져오기
+      const solutionData = await this.problemRepository.getProblemSolution(problemId);
+
+      // TODO: 답에 따른 형변환 함수 만들기
+      switch (problemData.type) {
+        case 1:
+          progressData.optionData = Number(progressData.optionData);
+          break;
+        case 2:
+          progressData.optionData = progressData.optionData === 'true';
+      }
+
+      console.log(`ssibal:${progressData.isCorrect}`);
+      // 문제 해설과 진행 데이터를 문제 데이터에 병합
+      Object.assign(problemData, {
+        explanation: solutionData.explanation,
+        reference: solutionData.reference,
+        answer: progressData.optionData,
+        isCorrect: progressData.isCorrect === 1,
+      });
+
+      return { isSolved, problemData };
+    }
 
     // 문제 반환
-    return problemData;
+    return { isSolved, problemData };
   }
 
-  async getProblemAnswer(problemId, option) {
+  async getProblemAnswer(userId, problemId, option) {
+    // 이미 푼 문제인지 확인
+    const isSolved = await this.progressRepository.getProblemProgress(userId, problemId);
+    console.log(`isSolved : ${isSolved}, userId: ${userId}`);
+    if (isSolved) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Already Solved Problem, Bro.');
+
     // 문제에 대한 옵션 가져오기
     const answers = await this.problemRepository.getAnswer(problemId);
 
@@ -188,6 +229,10 @@ export class ProblemService {
         // 정답이 맞는지 여부 확인
         isCorrect = correctAnswer === option;
         break;
+      case 4:
+        if (typeof option === 'string') isCorrectOptionValue = true;
+
+        break;
     }
 
     // 문제에 대한 옵션 중 해당하는 옵션이 없을 경우 에러처리
@@ -202,6 +247,9 @@ export class ProblemService {
 
     // 제출 답안 정답인지 여부 삽입
     solution.isCorrect = isCorrect;
+
+    // progress 추가
+    this.progressRepository.createProgress(userId, problemId, typeNum, isCorrect, String(option));
 
     return solution;
   }

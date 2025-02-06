@@ -61,7 +61,7 @@ export class ProblemRepository {
     return rows[0].total_count | 0;
   }
 
-  async getProblemList(sectorId, difficulty, page, limit) {
+  async getProblemList(userId, sectorId, difficulty, page, limit) {
     // 오프셋 계산
     const offset = (page - 1) * limit;
 

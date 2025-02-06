@@ -36,9 +36,9 @@ export class TokenManager {
   }
 
   // 액세스토큰 생성
-  createAccessToken(username) {
+  createAccessToken(user_id, username) {
     try {
-      const payload = { username };
+      const payload = { user_id, username };
       const options = { expiresIn: '30m' };
       const token = jwt.sign(payload, config.auth.secret_key, options);
       return token;
@@ -78,9 +78,9 @@ export class TokenManager {
   }
 
   // 리프레시토큰 생성
-  async createRefreshToken(username) {
+  async createRefreshToken(user_id, username) {
     try {
-      const payload = { username };
+      const payload = { user_id, username };
       const options = { expiresIn: '7d' };
       const token = jwt.sign(payload, config.auth.secret_key, options);
       const hashedToken = await hashed(token);
