@@ -14,7 +14,7 @@ export class ProfileRepository {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.profile.UPDATE_PROFILE, [
       nickname,
       profile_image,
-      'username',
+      username,
     ]);
 
     return rows ? 'Profile updated successfully' : null;
