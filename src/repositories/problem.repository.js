@@ -67,6 +67,7 @@ export class ProblemRepository {
 
     // 문제 리스트 쿼리 호출
     const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.FIND_PROBLEM_LIST, [
+      userId,
       sectorId,
       difficulty,
       Number(limit),
