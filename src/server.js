@@ -7,9 +7,10 @@ import { fileExists } from './utils/file/fileExists.js';
 import { logger } from './utils/log/logger.js';
 import { initServer } from './init/initServer.js';
 import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-
+import cors from 'cors';
 const app = express();
-// SSL 인증서 파일 경로 설정
+
+app.use(cors());
 
 app.use(express.json());
 app.use('/api', router);
