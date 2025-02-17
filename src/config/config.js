@@ -1,4 +1,6 @@
 import {
+  ADMIN_HOST_IP1,
+  ADMIN_HOST_IP2,
   CERT,
   CLIENT_ID,
   CLIENT_SECRET,
@@ -56,5 +58,8 @@ export const config = {
     port: REDIS_PORT,
     password: REDIS_PASSWORD,
     db: REDIS_DB,
+  },
+  admin: {
+    host: [ADMIN_HOST_IP1, ADMIN_HOST_IP2],
   },
 };
