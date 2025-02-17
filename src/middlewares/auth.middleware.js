@@ -1,3 +1,4 @@
+import { config } from '../config/config.js';
 import CustomErr from '../utils/error/CustomErr.js';
 import { ERR_CODES } from '../utils/error/ERR_CODES.js';
 import { TokenManager } from '../utils/manager/tokenManager.js';
@@ -7,6 +8,15 @@ const tokenManager = new TokenManager();
 export default async function (req, _, next) {
   try {
     const { authorization } = req.headers; // 헤더에서 토큰 정보 추출
+    const clientIp = req.headers['x-real-ip'] || req.connection.remoteAddress;
+
+    if (!authorization && config.admin.host.some((x) => x === clientIp)) {
+      const user_id = 0;
+      const username = 'admin';
+      req.user = { user_id, username };
+      return next();
+    }
+
     if (!authorization)
       // 토큰이 없을 시 에러
       throw new CustomErr(ERR_CODES.NOT_FOUND, 'Not Found TOKEN');
