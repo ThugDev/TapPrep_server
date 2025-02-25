@@ -36,7 +36,6 @@ export class AuthService {
     const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
 
     if (!accessToken || !refreshToken) {
-      console.log(accessToken, refreshToken);
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }
 

@@ -156,8 +156,6 @@ export class ProblemService {
         case 2:
           progressData.optionData = progressData.optionData === 'true';
       }
-
-      console.log(`ssibal:${progressData.isCorrect}`);
       // 문제 해설과 진행 데이터를 문제 데이터에 병합
       Object.assign(problemData, {
         explanation: solutionData.explanation,
@@ -176,7 +174,6 @@ export class ProblemService {
   async getProblemAnswer(userId, problemId, option) {
     // 이미 푼 문제인지 확인
     const isSolved = await this.progressRepository.getProblemProgress(userId, problemId);
-    console.log(`isSolved : ${isSolved}, userId: ${userId}`);
     if (isSolved) throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Already Solved Problem, Bro.');
 
     // 문제에 대한 옵션 가져오기
