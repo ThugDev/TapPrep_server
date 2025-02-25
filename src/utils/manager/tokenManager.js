@@ -14,6 +14,9 @@ export class TokenManager {
     TokenManager.instance = this;
     this.redis = redisClient;
 
+    // 관리자 액세스 토큰 저장용
+    this.adminToken = new Map();
+
     // 로그아웃시킨 액세스토큰 저장용
     this.removalToken = new Map();
     // 액세스토큰 만료 시간이 30분이므로 30분마다 만료된 토큰을 정리
@@ -22,17 +25,37 @@ export class TokenManager {
 
   // 만료된 토큰 정리
   cleanRemovalToken() {
-    setInterval(
-      () => {
-        const now = Date.now();
-        for (const [token, exp] of this.removalToken) {
+    const CLEAN_INTERVAL = 1000 * 60 * 30; // 30분
+
+    setInterval(() => {
+      const now = Date.now();
+
+      // 만료된 토큰 정리
+      const cleanExpiredTokens = (map) => {
+        for (const [token, exp] of map.entries()) {
           if (now > exp) {
-            this.removalToken.delete(token);
+            map.delete(token);
           }
         }
-      },
-      1000 * 60 * 30,
-    );
+      };
+
+      // 로그아웃용
+      cleanExpiredTokens(this.removalToken);
+      // 어드민용
+      cleanExpiredTokens(this.adminToken);
+    }, CLEAN_INTERVAL);
+  }
+
+  // 관리자 액세스토큰 등록
+  setAdminToken(token) {
+    const decodedToken = jwt.decode(token);
+    const exp = decodedToken.exp * 1000;
+    this.adminToken.set(token, exp);
+  }
+
+  // 관리자 액세스토큰 확인
+  isAdminToken(token) {
+    return this.adminToken.has(token);
   }
 
   // 액세스토큰 생성
