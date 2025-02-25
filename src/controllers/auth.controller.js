@@ -10,10 +10,23 @@ export class AuthController {
   callback = async (req, res, next) => {
     try {
       // Authorization Code 취득
-      const { code } = req.query;
+      const { code, state } = req.query;
+      let redirectUri = null;
+
+      // state 검증
+      switch (state) {
+        case 'mobile':
+          redirectUri = 'tapprep1029://auth/callback';
+          break;
+        case 'web':
+          redirectUri = 'https://localhost:5173/auth';
+          break;
+        default:
+          throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Invalid state');
+      }
 
       // 클라이언트로 `code` 전달
-      res.redirect(`https://localhost:8081/auth?code=${code}`);
+      res.redirect(redirectUri + `?code=${code}`);
     } catch (err) {
       next(err);
     }
