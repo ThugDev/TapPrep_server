@@ -3,12 +3,14 @@ import { ProgressRepository } from '../repositories/progress.repository.js';
 import { SectorRepository } from '../repositories/sector.repository.js';
 import CustomErr from '../utils/error/CustomErr.js';
 import { ERR_CODES } from '../utils/error/ERR_CODES.js';
+import { LevelManager } from '../utils/manager/levelManager.js';
 
 export class ProblemService {
   constructor() {
     this.problemRepository = new ProblemRepository();
     this.sectorRepository = new SectorRepository();
     this.progressRepository = new ProgressRepository();
+    this.levelManager = new LevelManager();
     this.typeNumber = {
       normal: 1,
       tf: 2,
@@ -235,6 +237,16 @@ export class ProblemService {
     // 문제에 대한 옵션 중 해당하는 옵션이 없을 경우 에러처리
     if (!isCorrectOptionValue)
       throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Incorrect option value for the problem');
+
+    // 맞았을 경우 경험치 부여
+    if (isCorrect) {
+      // 난이도 조회
+      const { difficulty } = await this.problemRepository.getProblemDifficulty(problemId);
+      const result = await this.levelManager.gainExp(userId, difficulty);
+      if (!result) {
+        throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error gaining exp');
+      }
+    }
 
     // 문제 해설 가져오기
     const solution = await this.problemRepository.getProblemSolution(problemId);

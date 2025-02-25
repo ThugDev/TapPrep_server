@@ -22,6 +22,9 @@ export class AuthRepository {
         email,
       ]);
 
+      // 사용자 레벨 컬럼 생성
+      await pools.USER_DB.query(SQL_QUERIES.auth.CREATE_USER_EXP, [rows.insertId]);
+
       return rows.insertId;
     } catch (err) {
       logger.error(`${userData.login} - Error creating user : ${err}`);
