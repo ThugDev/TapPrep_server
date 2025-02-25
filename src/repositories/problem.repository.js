@@ -89,6 +89,14 @@ export class ProblemRepository {
     return rows[0];
   }
 
+  async getProblemDifficulty(problemId) {
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_PROBLEM_DIFFICULTY, [
+      problemId,
+    ]);
+
+    return rows[0];
+  }
+
   async getAnswer(problemId) {
     const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.problem.GET_ANSWER, [problemId]);
 
