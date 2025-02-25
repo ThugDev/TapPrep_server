@@ -1,3 +1,4 @@
+import { LevelRepository } from '../repositories/level.repository.js';
 import { ProfileRepository } from '../repositories/profile.repository.js';
 import CustomErr from '../utils/error/CustomErr.js';
 import { ERR_CODES } from '../utils/error/ERR_CODES.js';
@@ -5,6 +6,7 @@ import { ERR_CODES } from '../utils/error/ERR_CODES.js';
 export class ProfileService {
   constructor() {
     this.profileRepository = new ProfileRepository();
+    this.levelRepository = new LevelRepository();
   }
 
   async getProfile(username) {
@@ -15,6 +17,11 @@ export class ProfileService {
     if (!profile) {
       throw new CustomErr(ERR_CODES.NOT_FOUND, 'User Not Found');
     }
+
+    // 레벨 조회
+    const level = await this.levelRepository.getLevel(profile.user_id);
+    profile.level = level.level;
+
     return profile;
   }
 
