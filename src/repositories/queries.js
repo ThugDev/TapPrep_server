@@ -2,10 +2,11 @@ export const SQL_QUERIES = {
   auth: {
     FIND_USER_BY_ID: `SELECT user_id, username, nickname, profile_image, role FROM users WHERE username = ?`,
     CREATE_USER: `INSERT INTO users (username, nickname, profile_image, email) VALUES (?, ?, ?, ?)`,
+    CREATE_USER_EXP: `INSERT INTO userExps (user_id) VALUES (?)`,
     DELETE_USER: `DELETE FROM users WHERE username = ?;`,
   },
   profile: {
-    GET_PROFILE: `SELECT username, nickname, profile_image,level FROM users WHERE username = ?`,
+    GET_PROFILE: `SELECT user_id, username, nickname, profile_image FROM users WHERE username = ?`,
     UPDATE_PROFILE: `UPDATE users SET nickname = ?, profile_image = ? WHERE username = ?`,
     UPDATE_PROFILE_NICKNAME: `UPDATE users SET nickname = ? WHERE username = ?`,
     UPDATE_PROFILE_IMAGE: `UPDATE users SET profile_image = ? WHERE username = ?`,
@@ -27,6 +28,7 @@ export const SQL_QUERIES = {
                    JOIN options o ON p.problem_id = o.problem_id
                    WHERE p.problem_id = ?
                    GROUP BY p.problem_id`,
+    GET_PROBLEM_DIFFICULTY: `SELECT difficulty FROM problems WHERE problem_id = ?`,
     GET_PROBLEM_COUNT: `SELECT COUNT(*) AS total_count FROM problems WHERE sector_id = ? AND difficulty = ?`,
     GET_ANSWER: `SELECT option_id, type, option_text, isCorrect FROM options WHERE problem_id = ?`,
     GET_SOLUTION: `SELECT problem_id, title, explanation, reference FROM problems WHERE problem_id = ?`,
@@ -38,5 +40,9 @@ export const SQL_QUERIES = {
   },
   option: {
     CREATE_OPTION: `INSERT INTO options (problem_id, type, option_text, isCorrect) VALUES (?,?,?,?)`,
+  },
+  level: {
+    GET_LEVEL: `SELECT level, exp FROM userExps WHERE user_id = ?`,
+    UPDATE_LEVEL: `UPDATE userExps SET level = ?, exp = ? WHERE user_id = ?`,
   },
 };
