@@ -19,7 +19,7 @@ export class AuthController {
           redirectUri = 'tapprep1029://auth/callback';
           break;
         case 'web':
-          redirectUri = 'https://localhost:5173/auth';
+          redirectUri = 'http://localhost:5173/auth';
           break;
         default:
           throw new CustomErr(ERR_CODES.BAD_REQUEST, 'Invalid state');
