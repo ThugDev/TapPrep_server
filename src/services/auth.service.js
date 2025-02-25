@@ -35,6 +35,11 @@ export class AuthService {
     const accessToken = this.tokenManager.createAccessToken(user_id, username);
     const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
 
+    // 관리자일 경우 토큰매니저 등록
+    if (isExistUser.role === 'admin') {
+      this.tokenManager.setAdminToken(accessToken);
+    }
+
     if (!accessToken || !refreshToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }
@@ -89,6 +94,7 @@ export class AuthService {
     }
 
     const data = await response.text();
+
     const accessToken = new URLSearchParams(data).get('access_token');
 
     return accessToken;
@@ -107,6 +113,7 @@ export class AuthService {
     if (!response.ok) {
       // 에러 처리
       logger.error(`Error getting git Data : ${response.status}`);
+
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error getting git Data');
     }
 
