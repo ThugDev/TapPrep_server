@@ -5,15 +5,19 @@ export class SectorRepository {
   constructor() {
     this.sectorNames = new Map();
   }
-  async createSector(sector) {
+  async createSector(sector, sectorType) {
     // 여러 형태를 띈 이름을 통일
     const sectorName = sector.replace(/\s+/g, '').trim().toLowerCase();
+    const sType = sectorType.replace(/\s+/g, '').trim().toLowerCase();
 
     // 이미 저장된 섹터이름이면 기존 저장된 번호 반환
     if (this.sectorNames.has(sectorName)) return this.sectorNames.get(sectorName);
 
     // 쿼리 등록
-    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.sector.CREATE_SECTOR, [sectorName]);
+    const [rows] = await pools.PROBLEM_DB.query(SQL_QUERIES.sector.CREATE_SECTOR, [
+      sectorName,
+      sType,
+    ]);
 
     const insertId = rows.insertId;
 
@@ -41,5 +45,21 @@ export class SectorRepository {
 
     // 결과 반환
     return this.sectorNames.get(sectorName) | null;
+  }
+
+  async getSectorList(type) {
+    switch (type) {
+      case 'fe':
+        const [fe] = await pools.PROBLEM_DB.query(SQL_QUERIES.sector.GET_FE_SECTORS);
+        return fe;
+        break;
+      case 'be':
+        const [be] = await pools.PROBLEM_DB.query(SQL_QUERIES.sector.GET_BE_SECTORS);
+        return be;
+        break;
+      default:
+        return null;
+        break;
+    }
   }
 }
