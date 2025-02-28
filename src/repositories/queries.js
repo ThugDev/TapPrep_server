@@ -12,8 +12,10 @@ export const SQL_QUERIES = {
     UPDATE_PROFILE_IMAGE: `UPDATE users SET profile_image = ? WHERE username = ?`,
   },
   sector: {
-    CREATE_SECTOR: `INSERT INTO sectors (sector_name) VALUES (?)`,
-    GET_SECTORS: `SELECT sector_id, sector_name FROM sectors`,
+    CREATE_SECTOR: `INSERT INTO sectors (sector_name, sector_type) VALUES (?,?)`,
+    GET_SECTORS: `SELECT sector_id, sector_name, sector_type FROM sectors`,
+    GET_FE_SECTORS: `SELECT sector_id, sector_name, sector_type FROM sectors WHERE sector_type = 'fe'`,
+    GET_BE_SECTORS: `SELECT sector_id, sector_name, sector_type FROM sectors WHERE sector_type = 'be'`,
   },
   problem: {
     CREATE_PROBLEM: `INSERT INTO problems (sector_id, type, difficulty, title, description, hint, explanation, reference) VALUES ?`,
@@ -35,7 +37,19 @@ export const SQL_QUERIES = {
   },
   progress: {
     CREATE_PROGRESS: `INSERT INTO progresses (user_id, problem_id, type, isCorrect, optionData) VALUES (?,?,?,?,?)`,
-    GET_PROGRESS: `SELECT problem_id, isCorrect, optionData FROM progresses WHERE user_id = ?`,
+    GET_PROGRESS: `SELECT pb.sector_id AS sector_id,
+                          COUNT(CASE WHEN p.isCorrect = TRUE THEN 1 END) AS correctCount,
+                          COUNT(p.problem_id) AS totalCount
+                  FROM 
+                      progresses p
+                  JOIN 
+                      problems pb ON pb.problem_id = p.problem_id
+                  WHERE 
+                      p.user_id = ?
+                  GROUP BY 
+                      pb.sector_id
+                  ORDER BY 
+                      pb.sector_id;`,
     GET_PROBLEM_PROGRESS: `SELECT problem_id, isCorrect, optionData FROM progresses WHERE user_id = ? AND problem_id = ?`,
   },
   option: {
