@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS sectors (
     sector_id          INT AUTO_INCREMENT PRIMARY KEY,
     sector_name       VARCHAR(60) NOT NULL UNIQUE,
+    sector_type       VARCHAR(40) NOT NULL,
     create_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
