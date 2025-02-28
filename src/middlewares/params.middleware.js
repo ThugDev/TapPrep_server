@@ -23,6 +23,7 @@ export const paramsValidator = {
   problems: {
     createProblem: [
       body('sector').notEmpty().withMessage('Not found parameter |sector|'),
+      body('sectorType').notEmpty().withMessage('Not found parameter |sectorType|'),
       body('type').notEmpty().withMessage('Not found parameter |type|'),
       body('difficulty').notEmpty().withMessage('Not found parameter |difficulty|'),
       body('title').notEmpty().withMessage('Not found parameter |title|'),

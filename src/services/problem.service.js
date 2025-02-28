@@ -22,14 +22,14 @@ export class ProblemService {
   }
 
   async createProblem(bodyData) {
-    const { sector, type, answer, ...problemData } = bodyData;
+    const { sector, sectorType, type, answer, ...problemData } = bodyData;
     let sectorId = null;
 
     // 섹터가 있는지 확인
     sectorId = await this.sectorRepository.hasSector(sector);
 
     // 없다면, 섹터 생성
-    if (!sectorId) sectorId = await this.sectorRepository.createSector(sector);
+    if (!sectorId) sectorId = await this.sectorRepository.createSector(sector, sectorType);
 
     // 타입 변환
     const typeNum = this.typeNumber[type];
