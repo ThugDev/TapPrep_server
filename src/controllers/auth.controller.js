@@ -51,6 +51,7 @@ export class AuthController {
           nickname: user.nickname,
           profile_image: user.profile_image,
         },
+        role: user.userRole,
       });
     } catch (err) {
       next(err);
