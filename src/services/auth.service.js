@@ -34,9 +34,10 @@ export class AuthService {
     // JWT 토큰 생성
     const accessToken = this.tokenManager.createAccessToken(user_id, username);
     const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
+    const userRole = isExistUser.role;
 
     // 관리자일 경우 토큰매니저 등록
-    if (isExistUser.role === 'admin') {
+    if (userRole === 'admin') {
       this.tokenManager.setAdminToken(accessToken);
     }
 
@@ -50,6 +51,7 @@ export class AuthService {
       username,
       nickname,
       profile_image,
+      userRole,
     };
   }
 
