@@ -1,5 +1,5 @@
 import pools from '../mysql/createPool.js';
-import { logger } from '../utils/log/logger.js';
+import { dbLogger, logger } from '../utils/log/logger.js';
 import { SQL_QUERIES } from './queries.js';
 
 export class AuthRepository {
@@ -27,8 +27,8 @@ export class AuthRepository {
 
       return rows.insertId;
     } catch (err) {
-      logger.error(`${userData.login} - Error creating user : ${err}`);
-      throw new Error('Error creating user');
+      dbLogger.error(`${userData.login} - Error creating user : ${err}`);
+      throw new Error(`Error creating user : ${err.message}`);
     }
   }
 
@@ -41,8 +41,8 @@ export class AuthRepository {
       const [rows] = await pools.USER_DB.query(SQL_QUERIES.auth.FIND_USER_BY_ID, [username]);
       return rows.length > 0 ? rows[0] : null;
     } catch (err) {
-      logger.error(`${username} - Error finding user : ${err}`);
-      throw new Error('Error finding user');
+      dbLogger.error(`${username} - Error finding user : ${err}`);
+      throw new Error(`Error finding user : ${err.message}`);
     }
   }
 
@@ -55,8 +55,8 @@ export class AuthRepository {
       const [rows] = await pools.USER_DB.query(SQL_QUERIES.auth.DELETE_USER, [username]);
       return rows;
     } catch (err) {
-      logger.error(`${username} - Error deleting user : ${err}`);
-      throw new Error('Error deleting user');
+      dbLogger.error(`${username} - Error deleting user : ${err}`);
+      throw new Error(`Error deleting user : ${err.message}`);
     }
   }
 }
