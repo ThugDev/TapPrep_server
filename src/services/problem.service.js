@@ -102,7 +102,7 @@ export class ProblemService {
     });
 
     // 반환
-    return { nextPage, problemList };
+    return { nextPage, problemList, lastPage: maxPage };
   }
 
   async getProblemListPage(sectorId, difficulty, limit) {
