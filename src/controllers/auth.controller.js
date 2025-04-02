@@ -19,6 +19,9 @@ export class AuthController {
           redirectUri = 'tapprep1029://auth/callback';
           break;
         case 'web':
+          redirectUri = 'https://tap-prep.vercel.app/auth';
+          break;
+        case 'dev':
           redirectUri = 'http://localhost:5173/auth';
           break;
         default:

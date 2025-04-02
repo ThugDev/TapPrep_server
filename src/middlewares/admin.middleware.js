@@ -6,12 +6,12 @@ const tokenManager = new TokenManager();
 
 export default async function (req, _, next) {
   try {
-    const { accessToken } = req.user; // 유저에서 토큰 정보 추출
+    const { accessToken, username } = req.user; // 유저에서 토큰 정보 추출
     if (!accessToken)
       // 토큰이 없을 시 에러
       throw new CustomErr(ERR_CODES.NOT_FOUND, 'Not Found TOKEN');
 
-    const isAdmin = tokenManager.isAdminToken(accessToken);
+    const isAdmin = tokenManager.isAdminToken(username, accessToken);
     if (!isAdmin)
       // 어드민 토큰이 아닐 시 에러
       throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Unauthorized');

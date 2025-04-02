@@ -14,9 +14,6 @@ export class TokenManager {
     TokenManager.instance = this;
     this.redis = redisClient;
 
-    // 관리자 액세스 토큰 저장용
-    this.adminToken = new Map();
-
     // 로그아웃시킨 액세스토큰 저장용
     this.removalToken = new Map();
     // 액세스토큰 만료 시간이 30분이므로 30분마다 만료된 토큰을 정리
@@ -41,29 +38,40 @@ export class TokenManager {
 
       // 로그아웃용
       cleanExpiredTokens(this.removalToken);
-      // 어드민용
-      cleanExpiredTokens(this.adminToken);
     }, CLEAN_INTERVAL);
   }
 
   // 관리자 액세스토큰 등록
-  setAdminToken(token) {
-    const decodedToken = jwt.decode(token);
-    const exp = decodedToken.exp * 1000;
-    this.adminToken.set(token, exp);
+  async setAdminToken(username, token) {
+    // 토큰 해시화화
+    const hashedToken = await hashed(token);
+
+    // 레디스에 저장
+    const rUsername = username + ':adminToken';
+    await this.redis.set(rUsername, hashedToken, 'EX', 60 * 60 * 24 * 7);
   }
 
   // 관리자 액세스토큰 확인
-  isAdminToken(token) {
-    return this.adminToken.has(token);
+  async isAdminToken(username, token) {
+    // 레디스에서 확인
+    this.redis.get(username + ':adminToken', async (err, hashedToken) => {
+      if (err) return false;
+      return await checkHashed(token, hashedToken);
+    });
   }
 
   // 액세스토큰 생성
-  createAccessToken(user_id, username) {
+  createAccessToken(user_id, username, isAdmin) {
     try {
       const payload = { user_id, username };
       const options = { expiresIn: '30m' };
       const token = jwt.sign(payload, config.auth.secret_key, options);
+
+      // 어드민의 경우 레디스 등록
+      if (isAdmin) {
+        this.setAdminToken(username, token);
+      }
+
       return token;
     } catch (err) {
       console.log(err);
@@ -101,7 +109,7 @@ export class TokenManager {
   }
 
   // 리프레시토큰 생성
-  async createRefreshToken(user_id, username) {
+  async createRefreshToken(user_id, username, isAdmin) {
     try {
       const payload = { user_id, username };
       const options = { expiresIn: '7d' };
@@ -109,7 +117,9 @@ export class TokenManager {
       const hashedToken = await hashed(token);
 
       // 리프레시토큰은 7일간 유효 (레디스 저장)
-      await this.redis.set(username, hashedToken, 'EX', 60 * 60 * 24 * 7);
+      const rUsername = username + ':refreshToken';
+      const rData = JSON.stringify({ isAdmin, hashedToken });
+      await this.redis.set(rUsername, rData, 'EX', 60 * 60 * 24 * 7);
       return token;
     } catch (err) {
       console.log(err);
@@ -120,7 +130,8 @@ export class TokenManager {
   // 리프레시토큰 삭제
   async deleteRefreshToken(username) {
     try {
-      await this.redis.del(username);
+      const rUsername = username + ':refreshToken';
+      await this.redis.del(rUsername);
       return true;
     } catch (err) {
       return false;
@@ -128,13 +139,18 @@ export class TokenManager {
   }
 
   // 리프레시토큰 비교
-  async compareRefreshToken(username, refreshToken) {
+  async compareRefreshTokenAndIsAdmin(username, refreshToken) {
     try {
-      const hashedToken = await this.redis.get(username);
-      if (!hashedToken) return null;
+      const rUsername = username + ':refreshToken';
+      const redisData = await this.redis.get(rUsername);
+      if (!redisData) return null;
       const isCorrectToken = this.decodeToken(refreshToken);
       if (!isCorrectToken) throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Token is invalid');
-      return await checkHashed(refreshToken, hashedToken);
+
+      const { isAdmin, hashedToken } = JSON.parse(redisData);
+      const result = await checkHashed(refreshToken, hashedToken);
+      // 토큰이 맞으면 isAdmin 반환
+      return result ? { result, isAdmin } : false;
     } catch (err) {
       return false;
     }

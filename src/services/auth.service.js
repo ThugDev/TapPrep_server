@@ -21,25 +21,24 @@ export class AuthService {
 
     // 사용자 정보로 DB 조회 (없으면 생성)
     const isExistUser = await this.authRepository.getUserById(userData.login);
-    let user_id, username, nickname, profile_image;
+    let user_id, username, nickname, profile_image, role;
     if (!isExistUser) {
       user_id = await this.authRepository.createUser(userData);
       username = userData.login;
       nickname = userData.name;
       profile_image = userData.avatar_url;
+      role = 'user';
     } else {
-      ({ user_id, username, nickname, profile_image } = isExistUser);
+      ({ user_id, username, nickname, profile_image, role } = isExistUser);
     }
+
+    // 어드민인지 조회
+    const isAdmin = role == 'admin' ? true : false;
 
     // JWT 토큰 생성
-    const accessToken = this.tokenManager.createAccessToken(user_id, username);
-    const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
+    const accessToken = this.tokenManager.createAccessToken(user_id, username, isAdmin);
+    const refreshToken = await this.tokenManager.createRefreshToken(user_id, username, isAdmin);
     const userRole = isExistUser.role;
-
-    // 관리자일 경우 토큰매니저 등록
-    if (userRole === 'admin') {
-      this.tokenManager.setAdminToken(accessToken);
-    }
 
     if (!accessToken || !refreshToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
@@ -126,10 +125,13 @@ export class AuthService {
 
   async refreshToken(username, token) {
     // 리프레시 토큰 검증
-    const isEqualToken = await this.tokenManager.compareRefreshToken(username, token);
-    if (isEqualToken === null) {
+    const { result, isAdmin } = await this.tokenManager.compareRefreshTokenAndIsAdmin(
+      username,
+      token,
+    );
+    if (result === null) {
       throw new CustomErr(ERR_CODES.NOT_FOUND, 'Not Found refresh token');
-    } else if (!isEqualToken) {
+    } else if (!result) {
       throw new CustomErr(ERR_CODES.UNAUTHORIZED, 'Invalid refresh token');
     }
 
@@ -137,7 +139,7 @@ export class AuthService {
     const payload = this.tokenManager.decodeToken(token);
 
     // 액세스 토큰 발급
-    const accessToken = this.tokenManager.createAccessToken(payload.user_id, username);
+    const accessToken = this.tokenManager.createAccessToken(payload.user_id, username, isAdmin);
     if (!accessToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');
     }

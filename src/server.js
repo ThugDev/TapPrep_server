@@ -1,53 +1,23 @@
-import express from 'express';
-import { config } from './config/config.js';
-import router from './router/index.route.js';
-import https from 'https';
-import fs from 'fs';
-import { fileExists } from './utils/file/fileExists.js';
-import { logger } from './utils/log/logger.js';
-import { initServer } from './init/initServer.js';
-import errorHandlingMiddleware from './middlewares/error-handling.middleware.js';
-import cors from 'cors';
-const app = express();
+import os from 'os';
+import cluster from 'cluster';
+import { httpServer } from './httpServer.js';
 
-const corsOptions = {
-  origin: ['http://localhost:5173', 'https://tap-prep.vercel.app'],
-  credentials: true,
-};
+const numCPUs = os.cpus().length;
 
-app.use(cors(corsOptions));
+if (cluster.isPrimary) {
+  console.log(`Master ${process.pid} is running And Worker Count: ${numCPUs}`);
 
-app.use(express.json());
-app.use('/api', router);
-app.use(errorHandlingMiddleware);
+  // 워커 프로세스 포크
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-// 인증서 있는지 확인
-const [keyExists, certExists] = await Promise.all([
-  fileExists(config.auth.key),
-  fileExists(config.auth.cert),
-]);
-
-const certExist = keyExists || certExists;
-
-// 인증서 유무에 따른 서버 실행
-if (certExist) {
-  // 서버 초기화 (인증서 로드)
-  const sslOptions = {
-    key: fs.readFileSync(config.auth.key), // 개인 키 파일
-    cert: fs.readFileSync(config.auth.cert), // 인증서 파일
-  };
-
-  initServer().then(() => {
-    https.createServer(sslOptions, app).listen(config.server.port, () => {
-      logger.info(`${config.server.port} PORT - HTTPS SERVER ON!`);
-    });
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died - code: ${code}, signal: ${signal}`);
+    console.log('Starting a new worker');
+    cluster.fork();
   });
 } else {
-  // 서버 초기화 (인증서 X)
-  logger.warn('Failed to load SSL certificate');
-  initServer().then(() => {
-    app.listen(config.server.port, () => {
-      logger.info(`${config.server.port} PORT - HTTP SERVER ON!`);
-    });
-  });
+  await httpServer();
+  console.log(`Worker ${process.pid} started`);
 }
