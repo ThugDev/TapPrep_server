@@ -32,9 +32,6 @@ export class AuthService {
       ({ user_id, username, nickname, profile_image, userRole } = isExistUser);
     }
 
-    // 어드민인지 조회
-    const isAdmin = role == 'admin' ? true : false;
-
     // JWT 토큰 생성
     const accessToken = this.tokenManager.createAccessToken(user_id, username);
     const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
