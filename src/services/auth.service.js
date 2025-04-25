@@ -29,7 +29,7 @@ export class AuthService {
       profile_image = userData.avatar_url;
       userRole = 'user';
     } else {
-      ({ user_id, username, nickname, profile_image, userRole } = isExistUser);
+      ({ user_id, username, nickname, profile_image, role: userRole } = isExistUser);
     }
 
     // JWT 토큰 생성
