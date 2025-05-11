@@ -21,24 +21,25 @@ export class AuthService {
 
     // 사용자 정보로 DB 조회 (없으면 생성)
     const isExistUser = await this.authRepository.getUserById(userData.login);
-    let user_id, username, nickname, profile_image, role;
+    let user_id, username, nickname, profile_image, userRole;
     if (!isExistUser) {
       user_id = await this.authRepository.createUser(userData);
       username = userData.login;
       nickname = userData.name;
       profile_image = userData.avatar_url;
-      role = 'user';
+      userRole = 'user';
     } else {
-      ({ user_id, username, nickname, profile_image, role } = isExistUser);
+      ({ user_id, username, nickname, profile_image, role: userRole } = isExistUser);
     }
 
-    // 어드민인지 조회
-    const isAdmin = role == 'admin' ? true : false;
-
     // JWT 토큰 생성
-    const accessToken = this.tokenManager.createAccessToken(user_id, username, isAdmin);
-    const refreshToken = await this.tokenManager.createRefreshToken(user_id, username, isAdmin);
-    const userRole = isExistUser.role;
+    const accessToken = this.tokenManager.createAccessToken(user_id, username);
+    const refreshToken = await this.tokenManager.createRefreshToken(user_id, username);
+
+    // 관리자일 경우 토큰매니저 등록
+    if (userRole === 'admin') {
+      this.tokenManager.setAdminToken(accessToken);
+    }
 
     if (!accessToken || !refreshToken) {
       throw new CustomErr(ERR_CODES.INTERNAL_SERVER_ERROR, 'Error creating token');

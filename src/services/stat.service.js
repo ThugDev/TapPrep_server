@@ -20,7 +20,8 @@ export class StatService {
       return {
         sector_name,
         correct: statData ? statData.correctCount : 0,
-        total: statData ? statData.totalCount : 0,
+        solvedCount: statData ? statData.userSolvedCount : 0,
+        totalCount: statData ? statData.totalCount : 0,
       };
     });
 

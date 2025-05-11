@@ -1,3 +1,4 @@
+import { url } from '../constants/url.js';
 import pools from '../mysql/createPool.js';
 import { dbLogger, logger } from '../utils/log/logger.js';
 import { SQL_QUERIES } from './queries.js';
@@ -5,21 +6,18 @@ import { SQL_QUERIES } from './queries.js';
 export class AuthRepository {
   async createUser(userData) {
     try {
-      let { login: username, name: nickname, avatar_url: profile_image, email } = userData;
-      if (!username || !nickname || !profile_image) {
-        throw new Error('Invalid arguments');
-      }
+      const { login: username, name: nickname, avatar_url: profile_image, email } = userData;
 
-      if (!email) {
-        email = 'none';
+      if (!username) {
+        throw new Error('Invalid arguments'); // Ensure a valid username exists
       }
 
       // 사용자 생성 로직
       const [rows] = await pools.USER_DB.query(SQL_QUERIES.auth.CREATE_USER, [
         username,
-        nickname,
-        profile_image,
-        email,
+        nickname ?? username,
+        profile_image ?? url.profile.default,
+        email ?? 'none',
       ]);
 
       // 사용자 레벨 컬럼 생성

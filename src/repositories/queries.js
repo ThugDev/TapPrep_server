@@ -39,15 +39,20 @@ export const SQL_QUERIES = {
     CREATE_PROGRESS: `INSERT INTO progresses (user_id, problem_id, type, isCorrect, optionData) VALUES (?,?,?,?,?)`,
     GET_PROGRESS: `SELECT pb.sector_id AS sector_id,
                           COUNT(CASE WHEN p.isCorrect = TRUE THEN 1 END) AS correctCount,
-                          COUNT(p.problem_id) AS totalCount
+                          COUNT(p.problem_id) AS userSolvedCount,
+                          total.totalProblem AS totalCount
                   FROM 
-                      progresses p
-                  JOIN 
-                      problems pb ON pb.problem_id = p.problem_id
-                  WHERE 
-                      p.user_id = ?
+                      problems pb
+                  LEFT JOIN 
+                      progresses p ON pb.problem_id = p.problem_id AND p.user_id = ?
+                  LEFT JOIN
+                      (
+                        SELECT sector_id, COUNT(problem_id) AS totalProblem
+                        FROM problems
+                        GROUP BY sector_id
+                        ) AS total ON pb.sector_id = total.sector_id  
                   GROUP BY 
-                      pb.sector_id
+                      pb.sector_id, total.totalProblem
                   ORDER BY 
                       pb.sector_id;`,
     GET_PROBLEM_PROGRESS: `SELECT problem_id, isCorrect, optionData FROM progresses WHERE user_id = ? AND problem_id = ?`,
