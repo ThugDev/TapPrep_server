@@ -131,8 +131,13 @@ export class ProblemService {
 
       // 문자열 스플릿
       const optionArr = options.split(',');
+
+      // 옵션 랜덤화
+      const shuffledOptions = optionArr.sort(() => Math.random() - 0.5);
+
+      // 랜덤화 된 옵션을 객체화
       const optionObj = [];
-      for (let data of optionArr) {
+      for (let data of shuffledOptions) {
         const [option_id, option_text] = data.split(':');
         optionObj.push({ [option_id]: option_text });
       }
